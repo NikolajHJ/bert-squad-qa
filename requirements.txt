@@ -1,0 +1,31 @@
+# === Core DL stack (install PyTorch build matching your CUDA from pytorch.org if needed) ===
+torch==2.4.1
+# CUDA runtime used for GPU training: 12.1
+# To install the matching PyTorch CUDA wheels:
+# pip install --index-url https://download.pytorch.org/whl/cu121 \
+#     torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1
+
+
+# === Hugging Face ecosystem ===
+transformers==4.44.2
+datasets==2.20.0
+accelerate==0.34.2
+tokenizers==0.19.1
+huggingface-hub==0.25.2
+safetensors==0.4.5
+protobuf==4.25.3
+
+# === Text generation / T5 paraphrasing ===
+sentencepiece==0.2.0
+sacremoses==0.1.1
+
+# === Evaluation & analysis ===
+evaluate==0.4.2
+numpy==1.26.4
+scipy==1.13.1
+pandas==2.2.2
+scikit-learn==1.5.2
+matplotlib==3.9.2
+tqdm==4.66.5
+pyyaml==6.0.2
+rich==13.8.1

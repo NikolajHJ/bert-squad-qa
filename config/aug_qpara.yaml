@@ -1,0 +1,92 @@
+# Input SQuAD v1.1 (official JSON path)
+input:
+  squad_train_json: data/datasets/squad_v1.1/train-v1.1.json
+
+# Output directory for space-efficient augmentation "delta"
+output:
+  dir: data/datasets/squad_v1.1_aug
+  filename: aug_questions.jsonl
+  metadata_filename: metadata.json
+
+# Model (auto-download to HF cache)
+model:
+  path: google/flan-t5-large        # try: facebook/bart-large for A/B
+  local_files_only: false          # allow first-time download
+  device: cuda                     # "cuda", "cpu", or "auto"
+  torch_dtype: bfloat16             # or "bfloat16"/"float16" if supported
+  # revision: "commit_hash_or_tag" # optional: pin exact snapshot
+
+# Generation settings
+generation:
+  # how many to KEEP per question (after filters)
+  target_per_question: 2
+  # how many raw candidates to GENERATE per question
+  n_candidates: 4
+
+  # deterministic decoding (beam search)
+  do_sample: false
+  num_beams: 4
+  num_beam_groups: 1           # keep 1 for stability
+  diversity_penalty: 0
+  length_penalty: 1
+
+  max_input_tokens: 320
+  min_new_tokens: 3
+  max_new_tokens: 32
+
+  batch_size: 96
+
+  # Instruction-style prompt (safer for FLAN/T5)
+  prompt_template: |
+    Paraphrase the question below.
+    - Keep meaning identical while still making sure exact wording is sufficiently different to count as a paraphrase/rewrite.
+    - Keep all relevant information
+    - Keep the sentence a question
+    - Keep named entities unchanged; do not invent new names.
+    - Keep the same WH-word type.
+    - Output exactly one well-formed question ending with a question mark.
+
+    here are some examples:
+    Q: Who founded the University of Notre Dame?
+    Paraphrased: Who was the founder of the University of Notre Dame?
+
+    Q: Which river flows through Budapest?
+    Paraphrased:  Which river runs through Budapest?
+
+    Q: How many goals did Lionel Messi score in the match?
+    Paraphrased:  How many goals did Lionel Messi net in the match?
+    
+    Question: "{q}"
+    Paraphrase:
+
+    
+
+    
+
+  # anti-repetition knobs
+  no_repeat_ngram_size: 3
+  repetition_penalty: 1.15
+
+# Filters (applied in order)
+filters:
+  dedupe: true
+  min_len_ratio: 0.70
+  max_len_ratio: 1.30
+  max_jaccard: 0.90
+  enforce_wh_type: true
+  # quick profanity/junk blocklist (extend as needed)
+  bad_words: ["fuck", "sex", "sexy", "omg"]
+
+# Reproducibility
+seed:
+  python: 43
+  numpy: 43
+  torch: 43
+
+# Progress logging every N questions
+log_every: 1000
+
+# Preview / smoke test (set limit: 0 for full run)
+preview:
+  limit: 0           # set 0 for entire dataset
+  out_suffix: ""       # optional; if empty, uses ".preview{limit}"
